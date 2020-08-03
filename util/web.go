@@ -29,6 +29,7 @@ const (
 	defaultServer = "http://localhost:3000/"
 )
 
+//  obtain the information from the config file
 func runViper() error {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -39,12 +40,15 @@ func runViper() error {
 	}
 	return err
 }
+
+// return the string that holds the current directory being worked on
 func readDir() (string, error) {
 	err := runViper()
 	return viper.GetString("directory.currDir"), err
 
 }
 
+// updates the current config file
 func setDir(location string) {
 	viper.Set("directory.currDir", location)
 	viper.WriteConfig()
