@@ -73,6 +73,7 @@ func Web() {
 		cmd := exec.Command("git", "clone", "https://github.com/googleinterns/oauth2l-web.git", directory)
 		clonErr := cmd.Run()
 		if clonErr != nil {
+			fmt.Println("Please enter a valid directory location")
 			log.Fatal(clonErr.Error())
 		} else {
 			fmt.Println("Web feature installed")
@@ -84,7 +85,7 @@ func Web() {
 	dockErr := cmd.Run()
 
 	if dockErr != nil {
-		fmt.Println("Check to see if Docker is running!")
+		fmt.Println("Please ensure Docker is installed and running")
 		log.Fatal(dockErr.Error())
 
 	} else {
