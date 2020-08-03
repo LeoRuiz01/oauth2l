@@ -73,7 +73,7 @@ func Web() {
 		cmd := exec.Command("git", "clone", "https://github.com/googleinterns/oauth2l-web.git", directory)
 		clonErr := cmd.Run()
 		if clonErr != nil {
-			fmt.Println("Please enter a valid directory location")
+			fmt.Println("Please enter a valid directory")
 			log.Fatal(clonErr.Error())
 		} else {
 			fmt.Println("Web feature installed")
@@ -116,9 +116,8 @@ func WebStop() {
 	directory, _ := readDir()
 	cmd := exec.Command("docker-compose", "stop")
 	cmd.Dir = directory
-	output, err := cmd.CombinedOutput()
+	err := cmd.Run()
 	if err != nil {
-		fmt.Println(string(output))
 		log.Fatal(err.Error())
 	}
 
