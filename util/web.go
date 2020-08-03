@@ -65,6 +65,7 @@ func Web() {
 		if decision == "y" || decision == "yes" {
 			fmt.Println("Enter new directory location")
 			fmt.Scanln(&location)
+
 			directory = location
 			setDir(location)
 		}
