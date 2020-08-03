@@ -21,28 +21,58 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+
+	"github.com/spf13/viper"
 )
 
 const (
 	defaultServer = "http://localhost:3000/"
 )
 
-var location string = "~/.oauth2l-web"
+func readDir() (string, error) {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	err := viper.ReadInConfig()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	return viper.GetString("directory.currDir"), err
+
+}
+
+func setDir(location string) {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Println(err.Error())
+	}
+	viper.Set("directory.currDir", location)
+	viper.WriteConfig()
+}
 
 // Runs the frontend/backend for OAuth2l Playground
 func Web() {
-	_, err := os.Stat("~/.oauth2l-web")
+
+	directory, _ := readDir()
+
+	_, err := os.Stat(directory)
 	if os.IsNotExist(err) {
 		var decision string
-		fmt.Println("The Web feature will be installed in ~/.oauth2l-web. Would you like to change the directory? (y/n)")
+		var location string
+		fmt.Println("The Web feature will be installed in " + directory + ". Would you like to change the directory? (y/n)")
 		fmt.Scanln(&decision)
 		decision = strings.ToLower(decision)
 		if decision == "y" || decision == "yes" {
 			fmt.Println("Enter new directory location")
 			fmt.Scanln(&location)
+			directory = location
+			setDir(location)
 		}
 		fmt.Println("Installing...")
-		cmd := exec.Command("git", "clone", "https://github.com/googleinterns/oauth2l-web.git", location)
+		cmd := exec.Command("git", "clone", "https://github.com/googleinterns/oauth2l-web.git", directory)
 		clonErr := cmd.Run()
 		if clonErr != nil {
 			log.Fatal(clonErr.Error())
@@ -51,7 +81,7 @@ func Web() {
 		}
 	}
 	cmd := exec.Command("docker-compose", "up", "-d", "--build")
-	cmd.Dir = location
+	cmd.Dir = directory
 
 	dockErr := cmd.Run()
 
@@ -84,15 +114,17 @@ func openWeb() error {
 
 // closes the containers and removes stopped containers
 func WebStop() {
+	directory, _ := readDir()
 	cmd := exec.Command("docker-compose", "stop")
-	cmd.Dir = location
-	err := cmd.Run()
+	cmd.Dir = directory
+	output, err := cmd.CombinedOutput()
 	if err != nil {
+		fmt.Println(string(output))
 		log.Fatal(err.Error())
 	}
 
 	remContainer := exec.Command("docker-compose", "rm", "-f")
-	remContainer.Dir = location
+	remContainer.Dir = directory
 	remErr := remContainer.Run()
 	if remErr != nil {
 		log.Fatal(err.Error())
