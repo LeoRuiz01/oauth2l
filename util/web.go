@@ -29,7 +29,7 @@ const (
 	defaultServer = "http://localhost:3000/"
 )
 
-func readDir() (string, error) {
+func runViper() error {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
@@ -37,18 +37,15 @@ func readDir() (string, error) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
+	return err
+}
+func readDir() (string, error) {
+	err := runViper()
 	return viper.GetString("directory.currDir"), err
 
 }
 
 func setDir(location string) {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println(err.Error())
-	}
 	viper.Set("directory.currDir", location)
 	viper.WriteConfig()
 }
