@@ -29,6 +29,20 @@ const (
 	defaultServer = "http://localhost:3000/"
 )
 
+// create config file wherever the oauth2l binary is stored
+func writeFile() {
+	file, err := os.Create("config.yaml")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer file.Close()
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	viper.SetDefault("directory", "~/.oauth2l-web")
+	viper.WriteConfig()
+}
+
 //  obtain the information from the config file
 func runViper() error {
 	viper.SetConfigName("config")
@@ -44,19 +58,19 @@ func runViper() error {
 // return the string that holds the current directory being worked on
 func readDir() (string, error) {
 	err := runViper()
-	return viper.GetString("directory.currDir"), err
+	return viper.GetString("directory"), err
 
 }
 
 // updates the current config file
 func setDir(location string) {
-	viper.Set("directory.currDir", location)
+	viper.Set("directory", location)
 	viper.WriteConfig()
 }
 
-// Runs the frontend/backend for OAuth2l Playground
+// Web runs the frontend/backend for OAuth2l Playground
 func Web() {
-
+	writeFile()
 	directory, _ := readDir()
 
 	_, err := os.Stat(directory)
@@ -115,7 +129,7 @@ func openWeb() error {
 	return exec.Command(cmd, defaultServer).Start()
 }
 
-// closes the containers and removes stopped containers
+// WebStop closes the containers and removes stopped containers
 func WebStop() {
 	directory, _ := readDir()
 	cmd := exec.Command("docker-compose", "stop")
